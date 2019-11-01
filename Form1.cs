@@ -7,14 +7,15 @@ using System.Collections;
 using System.Net.Http;
 using System.Web.Script.Serialization;
 using System.Net;
+using System.Threading;
 
 namespace LocalizationTranslatorForUnity
 {
     public partial class Form1 : Form
     {
-        
+
         readonly List<Language> languages = new List<Language>();
-        readonly Language Detectlanguage=new Language("Detect language","auto");
+        readonly Language Detectlanguage = new Language("Detect language", "auto");
         readonly Language Afrikaans = new Language("Afrikaans", "af");
         readonly Language Albanian = new Language("Albanian", "sq");
         readonly Language Amharic = new Language("Amharic", "am");
@@ -47,7 +48,7 @@ namespace LocalizationTranslatorForUnity
         readonly Language German = new Language("German", "de");
         readonly Language Greek = new Language("Greek", "el");
         readonly Language Gujarati = new Language("Gujarati", "gu");
-        readonly Language HaitianCreole=new Language("Haitian Creole","ht");
+        readonly Language HaitianCreole = new Language("Haitian Creole", "ht");
         readonly Language Hausa = new Language("Hausa", "ha");
         readonly Language Hawaiian = new Language("Hawaiian", "haw");
         readonly Language Hebrew = new Language("Hebrew", "iw");
@@ -91,7 +92,7 @@ namespace LocalizationTranslatorForUnity
         readonly Language Romanian = new Language("Romanian", "ro");
         readonly Language Russian = new Language("Russian", "ru");
         readonly Language Samoan = new Language("Samoan", "sm");
-        readonly Language ScotsGaelic=new Language("Scots Gaelic","gd");
+        readonly Language ScotsGaelic = new Language("Scots Gaelic", "gd");
         readonly Language Serbian = new Language("Serbian", "sr");
         readonly Language Sesotho = new Language("Sesotho", "st");
         readonly Language Shona = new Language("Shona", "sn");
@@ -120,7 +121,8 @@ namespace LocalizationTranslatorForUnity
         readonly Language Zulu = new Language("Zulu", "zu");
 
 
-        private bool connected, istranslating;
+        private bool connected, istranslating,webloaded,filedownloaded;
+        WebBrowser webBrowser;
         public Form1()
         {
             InitializeComponent();
@@ -237,25 +239,19 @@ namespace LocalizationTranslatorForUnity
             comboBox1.Items.AddRange(languagesstrings.ToArray());
             comboBox2.Items.AddRange(languagesstrings.ToArray());
             comboBox1.SelectedIndex = 0;
-            comboBox2.SelectedIndex = 1;         
+            comboBox2.SelectedIndex = 1;
             connected = true;
             richTextBox3.SelectionAlignment = HorizontalAlignment.Center;
             richTextBox3.MaxLength = 1;
         }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
         public void EasyString()
         {
-            List<string> languages=new List<string>();
-            string willmodify = "new Language(auto, Detect language )                                  new Language(af, Afrikaans )                                  new Language(sq, Albanian )                                  new Language(am, Amharic )                                  new Language(ar, Arabic )                                  new Language(hy, Armenian )                                  new Language(az, Azerbaijani )                                  new Language(eu, Basque )                                  new Language(be, Belarusian )                                  new Language(bn, Bengali )                                  new Language(bs, Bosnian )                                  new Language(bg, Bulgarian )                                  new Language(ca, Catalan )                                  new Language(ceb, Cebuano )                                  new Language(ny, Chichewa )                                  new Language(zh-CN, Chinese )                                  new Language(co, Corsican )                                  new Language(hr, Croatian )                                  new Language(cs, Czech )                                  new Language(da, Danish )                                  new Language(nl, Dutch )                                  new Language(en, English )                                  new Language(eo, Esperanto )                                  new Language(et, Estonian )                                  new Language(tl, Filipino )                                  new Language(fi, Finnish )                                  new Language(fr, French )                                  new Language(fy, Frisian )                                  new Language(gl, Galician )                                  new Language(ka, Georgian )                                  new Language(de, German )                                  new Language(el, Greek )                                  new Language(gu, Gujarati )                                  new Language(ht, Haitian Creole )                                  new Language(ha, Hausa )                                  new Language(haw, Hawaiian )                                  new Language(iw, Hebrew )                                  new Language(hi, Hindi )                                  new Language(hmn, Hmong )                                  new Language(hu, Hungarian )                                  new Language(is, Icelandic )                                  new Language(ig, Igbo )                                  new Language(id, Indonesian )                                  new Language(ga, Irish )                                  new Language(it, Italian )                                  new Language(ja, Japanese )                                  new Language(jw, Javanese )                                  new Language(kn, Kannada )                                  new Language(kk, Kazakh )                                  new Language(km, Khmer )                                  new Language(ko, Korean )                                  new Language(ku, Kurdish )                                  new Language(ky, Kyrgyz )                                  new Language(lo, Lao )                                  new Language(la, Latin )                                  new Language(lv, Latvian )                                  new Language(lt, Lithuanian )                                  new Language(lb, Luxembourgish )                                  new Language(mk, Macedonian )                                  new Language(mg, Malagasy )                                  new Language(ms, Malay )                                  new Language(ml, Malayalam )                                  new Language(mt, Maltese )                                  new Language(mi, Maori )                                  new Language(mr, Marathi )                                  new Language(mn, Mongolian )                                  new Language(my, Myanmar )                                  new Language(ne, Nepali )                                  new Language(no, Norwegian )                                  new Language(ps, Pashto )                                  new Language(fa, Persian )                                  new Language(pl, Polish )                                  new Language(pt, Portuguese )                                  new Language(pa, Punjabi )                                  new Language(ro, Romanian )                                  new Language(ru, Russian )                                  new Language(sm, Samoan )                                  new Language(gd, Scots Gaelic )                                  new Language(sr, Serbian )                                  new Language(st, Sesotho )                                  new Language(sn, Shona )                                  new Language(sd, Sindhi )                                  new Language(si, Sinhala )                                  new Language(sk, Slovak )                                  new Language(sl, Slovenian )                                  new Language(so, Somali )                                  new Language(es, Spanish )                                  new Language(su, Sundanese )                                  new Language(sw, Swahili )                                  new Language(sv, Swedish )                                  new Language(tg, Tajik )                                  new Language(ta, Tamil )                                  new Language(te, Telugu )                                  new Language(th, Thai )                                  new Language(tr, Turkish )                                  new Language(uk, Ukrainian )                                  new Language(ur, Urdu )                                  new Language(uz, Uzbek )                                  new Language(vi, Vietnamese )                                  new Language(cy, Welsh )                                  new Language(xh, Xhosa )                                  new Language(yi, Yiddish )                                  new Language(yo, Yoruba )                                  new Language(zu, Zulu ) "; 
-            int startindex=0;
-            int midcutindex=0;
-            int endindex=0;
-            for(int i = 0; i < willmodify.Length; i++)
+            List<string> languages = new List<string>();
+            string willmodify = "new Language(auto, Detect language )                                  new Language(af, Afrikaans )                                  new Language(sq, Albanian )                                  new Language(am, Amharic )                                  new Language(ar, Arabic )                                  new Language(hy, Armenian )                                  new Language(az, Azerbaijani )                                  new Language(eu, Basque )                                  new Language(be, Belarusian )                                  new Language(bn, Bengali )                                  new Language(bs, Bosnian )                                  new Language(bg, Bulgarian )                                  new Language(ca, Catalan )                                  new Language(ceb, Cebuano )                                  new Language(ny, Chichewa )                                  new Language(zh-CN, Chinese )                                  new Language(co, Corsican )                                  new Language(hr, Croatian )                                  new Language(cs, Czech )                                  new Language(da, Danish )                                  new Language(nl, Dutch )                                  new Language(en, English )                                  new Language(eo, Esperanto )                                  new Language(et, Estonian )                                  new Language(tl, Filipino )                                  new Language(fi, Finnish )                                  new Language(fr, French )                                  new Language(fy, Frisian )                                  new Language(gl, Galician )                                  new Language(ka, Georgian )                                  new Language(de, German )                                  new Language(el, Greek )                                  new Language(gu, Gujarati )                                  new Language(ht, Haitian Creole )                                  new Language(ha, Hausa )                                  new Language(haw, Hawaiian )                                  new Language(iw, Hebrew )                                  new Language(hi, Hindi )                                  new Language(hmn, Hmong )                                  new Language(hu, Hungarian )                                  new Language(is, Icelandic )                                  new Language(ig, Igbo )                                  new Language(id, Indonesian )                                  new Language(ga, Irish )                                  new Language(it, Italian )                                  new Language(ja, Japanese )                                  new Language(jw, Javanese )                                  new Language(kn, Kannada )                                  new Language(kk, Kazakh )                                  new Language(km, Khmer )                                  new Language(ko, Korean )                                  new Language(ku, Kurdish )                                  new Language(ky, Kyrgyz )                                  new Language(lo, Lao )                                  new Language(la, Latin )                                  new Language(lv, Latvian )                                  new Language(lt, Lithuanian )                                  new Language(lb, Luxembourgish )                                  new Language(mk, Macedonian )                                  new Language(mg, Malagasy )                                  new Language(ms, Malay )                                  new Language(ml, Malayalam )                                  new Language(mt, Maltese )                                  new Language(mi, Maori )                                  new Language(mr, Marathi )                                  new Language(mn, Mongolian )                                  new Language(my, Myanmar )                                  new Language(ne, Nepali )                                  new Language(no, Norwegian )                                  new Language(ps, Pashto )                                  new Language(fa, Persian )                                  new Language(pl, Polish )                                  new Language(pt, Portuguese )                                  new Language(pa, Punjabi )                                  new Language(ro, Romanian )                                  new Language(ru, Russian )                                  new Language(sm, Samoan )                                  new Language(gd, Scots Gaelic )                                  new Language(sr, Serbian )                                  new Language(st, Sesotho )                                  new Language(sn, Shona )                                  new Language(sd, Sindhi )                                  new Language(si, Sinhala )                                  new Language(sk, Slovak )                                  new Language(sl, Slovenian )                                  new Language(so, Somali )                                  new Language(es, Spanish )                                  new Language(su, Sundanese )                                  new Language(sw, Swahili )                                  new Language(sv, Swedish )                                  new Language(tg, Tajik )                                  new Language(ta, Tamil )                                  new Language(te, Telugu )                                  new Language(th, Thai )                                  new Language(tr, Turkish )                                  new Language(uk, Ukrainian )                                  new Language(ur, Urdu )                                  new Language(uz, Uzbek )                                  new Language(vi, Vietnamese )                                  new Language(cy, Welsh )                                  new Language(xh, Xhosa )                                  new Language(yi, Yiddish )                                  new Language(yo, Yoruba )                                  new Language(zu, Zulu ) ";
+            int startindex = 0;
+            int midcutindex = 0;
+            int endindex = 0;
+            for (int i = 0; i < willmodify.Length; i++)
             {
                 if (willmodify[i] == '(')
                 {
@@ -265,26 +261,27 @@ namespace LocalizationTranslatorForUnity
                 {
                     midcutindex = i;
                 }
-                 if (willmodify[i] == ')')
+                if (willmodify[i] == ')')
                 {
                     endindex = i;
-                    Debug.WriteLine("readonly Language " + willmodify.Substring(midcutindex+2 , endindex - midcutindex-3)+ "=new Language("+'"' + willmodify.Substring(midcutindex+2 , endindex - midcutindex-3)+'"'+","+'"'+ willmodify.Substring(startindex+1 , midcutindex - startindex-1)+'"'+");");
+                    Debug.WriteLine("readonly Language " + willmodify.Substring(midcutindex + 2, endindex - midcutindex - 3) + "=new Language(" + '"' + willmodify.Substring(midcutindex + 2, endindex - midcutindex - 3) + '"' + "," + '"' + willmodify.Substring(startindex + 1, midcutindex - startindex - 1) + '"' + ");");
                     languages.Add(willmodify.Substring(midcutindex + 2, endindex - midcutindex - 3));
                 }
             }
-            for(int j = 0; j < languages.Count; j++)
+            for (int j = 0; j < languages.Count; j++)
             {
                 Debug.WriteLine("languages.Add(" + languages[j] + ");");
             }
         }
-        public string TranslateText(string input)
+
+        string TranslateTextAsync(string input)
         {
+            Thread.Sleep(500);
             // Set the language from/to in the url (or pass it into this function)
             HttpClient httpClient = new HttpClient();
             string url = String.Format
             ("https://translate.googleapis.com/translate_a/single?client=gtx&sl={0}&tl={1}&dt=t&q={2}",
              languages[comboBox1.SelectedIndex].code, languages[comboBox2.SelectedIndex].code, Uri.EscapeUriString(input));
-
             string result = httpClient.GetStringAsync(url).Result;
 
             // Get all json data
@@ -325,7 +322,7 @@ namespace LocalizationTranslatorForUnity
         {
 
         }
-        public static bool CheckForInternetConnection()
+        public  bool CheckForInternetConnection()
         {
             try
             {
@@ -338,23 +335,6 @@ namespace LocalizationTranslatorForUnity
                 return false;
             }
         }
-        private void richTextBox1_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void richTextBox3_TextChanged(object sender, EventArgs e)
-        {
-
-
-
-        }
-
         private void button3_Click(object sender, EventArgs e)
         {
             connected = CheckForInternetConnection();
@@ -386,7 +366,7 @@ namespace LocalizationTranslatorForUnity
                                 {
                                     endindex = i;
                                     istranslating = false;
-                                    modified += TranslateText(main.Substring(startindex, endindex - startindex)) + controllingchar;
+                                    modified += controllingchar+TranslateTextAsync(main.Substring(startindex+1, endindex - startindex-1)) + controllingchar;
 
 
                                 }
@@ -402,15 +382,11 @@ namespace LocalizationTranslatorForUnity
                         richTextBox1.Text = modified;
                     }
                     else
-                        richTextBox1.Text = TranslateText(richTextBox2.Text);
+                        richTextBox1.Text = TranslateTextAsync(richTextBox2.Text);
                 }
             }
         }
 
-        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
     }
     public class Language
     {

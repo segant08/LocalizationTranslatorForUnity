@@ -44,7 +44,7 @@
             this.richTextBox1.Size = new System.Drawing.Size(300, 300);
             this.richTextBox1.TabIndex = 0;
             this.richTextBox1.Text = "";
-            this.richTextBox1.TextChanged += new System.EventHandler(this.richTextBox1_TextChanged);
+            
             // 
             // richTextBox2
             // 
@@ -70,7 +70,7 @@
             this.comboBox1.Name = "comboBox1";
             this.comboBox1.Size = new System.Drawing.Size(200, 32);
             this.comboBox1.TabIndex = 3;
-            this.comboBox1.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+       
             // 
             // richTextBox3
             // 
@@ -80,7 +80,7 @@
             this.richTextBox3.Size = new System.Drawing.Size(50, 32);
             this.richTextBox3.TabIndex = 4;
             this.richTextBox3.Text = "";
-            this.richTextBox3.TextChanged += new System.EventHandler(this.richTextBox3_TextChanged);
+            
             // 
             // comboBox2
             // 
@@ -96,7 +96,7 @@
             this.comboBox2.Name = "comboBox2";
             this.comboBox2.Size = new System.Drawing.Size(200, 32);
             this.comboBox2.TabIndex = 5;
-            this.comboBox2.SelectedIndexChanged += new System.EventHandler(this.comboBox2_SelectedIndexChanged);
+            
             // 
             // button3
             // 
@@ -127,7 +127,7 @@
             this.MinimizeBox = false;
             this.Name = "Form1";
             this.Text = "LocalizationTranslatorForUnity";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            
             this.ResumeLayout(false);
 
         }
