@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Diagnostics;
-using System.Collections;
-using System.Net.Http;
-using System.Web.Script.Serialization;
 using System.Net;
+using GoogleTranslateFreeApi;
+using System.Threading.Tasks;
 using System.Threading;
 
 namespace LocalizationTranslatorForUnity
@@ -121,8 +120,8 @@ namespace LocalizationTranslatorForUnity
         readonly Language Zulu = new Language("Zulu", "zu");
 
 
-        private bool connected, istranslating,webloaded,filedownloaded;
-        WebBrowser webBrowser;
+        private bool connected, istranslating;
+       
         public Form1()
         {
             InitializeComponent();
@@ -274,47 +273,38 @@ namespace LocalizationTranslatorForUnity
             }
         }
 
-        string TranslateTextAsync(string input)
+        public async Task<string> TranslateTextAsync(string input)
         {
-            Thread.Sleep(500);
-            // Set the language from/to in the url (or pass it into this function)
-            HttpClient httpClient = new HttpClient();
-            string url = String.Format
-            ("https://translate.googleapis.com/translate_a/single?client=gtx&sl={0}&tl={1}&dt=t&q={2}",
-             languages[comboBox1.SelectedIndex].code, languages[comboBox2.SelectedIndex].code, Uri.EscapeUriString(input));
-            string result = httpClient.GetStringAsync(url).Result;
+            var translator = new GoogleTranslator();
 
-            // Get all json data
-            var jsonData = new JavaScriptSerializer().Deserialize<List<dynamic>>(result);
 
-            // Extract just the first array element (This is the only data we are interested in)
-            var translationItems = jsonData[0];
-
-            // Translation Data
-            string translation = "";
-
-            // Loop through the collection extracting the translated objects
-            foreach (object item in translationItems)
+            int selection = comboBox1.SelectedIndex;
+            GoogleTranslateFreeApi.Language from;
+            if (selection == 0)
             {
-                // Convert the item array to IEnumerable
-                IEnumerable translationLineObject = item as IEnumerable;
-
-                // Convert the IEnumerable translationLineObject to a IEnumerator
-                IEnumerator translationLineString = translationLineObject.GetEnumerator();
-
-                // Get first object in IEnumerator
-                translationLineString.MoveNext();
-
-                // Save its value (translated text)
-                translation += string.Format(" {0}", Convert.ToString(translationLineString.Current));
+                from = GoogleTranslateFreeApi.Language.Auto;
             }
+            else
+            {
+                from = GoogleTranslator.GetLanguageByName(languages[comboBox1.SelectedIndex].name);
+            }
+             
+            GoogleTranslateFreeApi.Language to = GoogleTranslator.GetLanguageByName(languages[comboBox2.SelectedIndex].name);
 
-            // Remove first blank character
-            if (translation.Length > 1) { translation = translation.Substring(1); };
+            TranslationResult result = await translator.TranslateAsync(input, from, to);
 
-            // Return translation
-            httpClient.Dispose();
-            return translation;
+            //The result is separated by the suggestions and the '\n' symbols
+            string[] resultSeparated = result.FragmentedTranslation;
+
+            //You can get all text using MergedTranslation property
+            string resultMerged = result.MergedTranslation;
+
+            //There is also original text transcription
+            string transcription = result.TranslatedTextTranscription; // Kon'nichiwa! Ogenkidesuka?
+            Console.WriteLine(resultSeparated.Length);
+            //Console.WriteLine(result.SeeAlso.Length);
+            //Console.WriteLine(result.Synonyms.Conjunction.Length);
+            return result.MergedTranslation;
         }
 
 
@@ -335,7 +325,7 @@ namespace LocalizationTranslatorForUnity
                 return false;
             }
         }
-        private void button3_Click(object sender, EventArgs e)
+        private async void button3_ClickAsync(object sender, EventArgs e)
         {
             connected = CheckForInternetConnection();
             //EasyString();
@@ -366,7 +356,25 @@ namespace LocalizationTranslatorForUnity
                                 {
                                     endindex = i;
                                     istranslating = false;
-                                    modified += controllingchar+TranslateTextAsync(main.Substring(startindex+1, endindex - startindex-1)) + controllingchar;
+                                    string translation = "";
+
+                                    //main.Substring(startindex+1, endindex - startindex-1)
+                                    await TranslateTextAsync(main.Substring(startindex + 1, endindex - startindex - 1)).ContinueWith(tasknew => {
+
+                                        if (tasknew.IsCompleted)
+                                        {
+                                            translation = tasknew.Result;
+                                        }
+                                        else
+                                        {
+                                            translation = "Error while translating";
+                                        }
+
+                                    });
+
+                                    modified += controllingchar + translation + controllingchar;
+                                    
+
 
 
                                 }
@@ -382,11 +390,41 @@ namespace LocalizationTranslatorForUnity
                         richTextBox1.Text = modified;
                     }
                     else
-                        richTextBox1.Text = TranslateTextAsync(richTextBox2.Text);
+                        await TranslateTextAsync(richTextBox2.Text).ContinueWith(
+                        task1 =>
+                        {
+                            if (task1.IsCompleted)
+                            {
+                                
+                                SetTextBoxText( task1.Result);
+                            }
+                            else
+                            {
+                                SetTextBoxText("Error");
+                            }
+                        }
+                    );
                 }
             }
         }
 
+        void SetCustomtTextBoxText(string text)
+        {
+            if (richTextBox1.InvokeRequired)
+            {
+                Program.SafeCallDelegate d = new Program.SafeCallDelegate(SetCustomtTextBoxText);
+                richTextBox1.Invoke(d, new object[] { text });
+            }
+            else
+            {
+                richTextBox1.Text = text;
+            }
+            
+        }
+        void SetTextBoxText(string text)
+        {
+            SetCustomtTextBoxText( text);
+        }
     }
     public class Language
     {

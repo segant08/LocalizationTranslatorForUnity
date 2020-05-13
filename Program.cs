@@ -10,6 +10,7 @@ namespace LocalizationTranslatorForUnity
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+        public delegate void SafeCallDelegate( string text);       
         [STAThread]
         static void Main()
         {
